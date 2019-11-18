@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <title>Web Audio API</title>
+    <link rel="stylesheet" href="styleweb.css"/>
+
+    </head>
+    <body>
+      <div class="bg-image"></div>
+      <div class="container">
+            <p>In this website I made an audio mixer using Web Audio API for an academic project.</p>
+            <p><input type="button"  id="play"  value="Play/Pause">
+            <button id="compressor" active="true">Enable Compressor</button></p>
+            
+            <div class="slidercontainer">
+                <p><label for="volume">Volume</label></p>
+                <p id="volumedisplay"></p>
+                <p><input type="range" id="volume" min="0" max="100" class="slider"></p>
+            </div>
+            <canvas id="canvas1"></canvas>
+
+
+      </div>
+        <p id="demo">hello</p>
+
+
+        <script type="text/javascript" src="audiomixer.js">
+
+        </script>
+
+    </body>
+
+
+</html>
