@@ -15,6 +15,16 @@
             <button id="bass" active="true">Enable Bass</button>
             <button id="treble" active="true">Enable Treble</button>
             </p>
+
+
+              <p  id="attr" style='display:none'  >
+              <input type="number" placeholder="threshold" id="threshold" required></input>
+              <input type="number" placeholder="knee" id="knee" required></input><br>
+              <input type="number" placeholder="ratio" id="ratio" required></input>
+              <input type="number" placeholder="attack" id="attack" step="0.1 "required></input>
+              <input type="number" placeholder="release" id="release" step="0.1" required></input><br><br>
+              <button id="startingCom">Start Compressor</button></p>
+
             <div class="slidercontainer">
                 <p><label for="volume">Volume</label></p>
                 <p id="volumedisplay"></p>

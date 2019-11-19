@@ -3,8 +3,11 @@ const volumeButton=document.getElementById("volume");
 const playButton=document.getElementById("play");
 const bassButton=document.getElementById("bass");
 const trebleButton=document.getElementById("treble");
+const startCompressor=document.getElementById("startingCom");
+
 var canvasCt=document.getElementById("canvas1");
 var canvasCtx=canvasCt.getContext('2d');
+var attributes=document.getElementById("attr");
 const compressorButton=document.getElementById("compressor");
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
@@ -29,7 +32,7 @@ draw();
 
 bassButton.addEventListener('click',function(){
   if(bassButton.getAttribute('active')==="true"){
-    bass.gain.setValueAtTime(25,audioCtx.currentTime);
+    bass.gain.setValueAtTime(20,audioCtx.currentTime);
     bassButton.innerHTML='Disable Bass';
     bassButton.setAttribute('active',"false");
   }else{
@@ -51,19 +54,36 @@ trebleButton.addEventListener('click',function(){
   }
 },false);
 
+startCompressor.addEventListener('click',function(){
+  var ratio=document.getElementById("ratio").value;
+  var knee=document.getElementById("knee").value;
+  var attack=document.getElementById("attack").value;
+  var threshold=document.getElementById("threshold").value;
+  var release=document.getElementById("release").value;
+    compressor.threshold.setValueAtTime(parseFloat(threshold), audioCtx.currentTime);
+    compressor.knee.setValueAtTime(parseFloat(knee), audioCtx.currentTime);
+    compressor.ratio.setValueAtTime(parseFloat(ratio), audioCtx.currentTime);
+    compressor.attack.setValueAtTime(parseFloat(attack), audioCtx.currentTime);
+    compressor.release.setValueAtTime(parseFloat(release), audioCtx.currentTime);
+},false);
+
+
+
 compressorButton.addEventListener('click',function(){
     if(compressorButton.getAttribute('active')==="true"){
-        gainNode.disconnect(audioCtx.destination);
-        gainNode.connect(compressor);
-        compressor.connect(audioCtx.destination);
+      gainNode.disconnect(audioCtx.destination);
+      gainNode.connect(compressor);
+      compressor.connect(audioCtx.destination);
         compressorButton.innerHTML='Disable compressor';
-        compressorButton.setAttribute('active',"false");
+        compressorButton.setAttribute("active","false");
+        attributes.style.display='block';
     }else{
         compressor.disconnect(audioCtx.destination);
         gainNode.disconnect(compressor);
         gainNode.connect(audioCtx.destination);
         compressorButton.innerHTML='Enable compressor'
         compressorButton.setAttribute("active","true");
+        attributes.style.display='none';
     }
 },false);
 
@@ -113,11 +133,11 @@ function playSound(buffer){
     gainNode.gain.value=0.5;
     source=audioCtx.createBufferSource();
 
-    compressor.threshold.setValueAtTime(-50, audioCtx.currentTime);
-    compressor.knee.setValueAtTime(40, audioCtx.currentTime);
-    compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+    compressor.threshold.setValueAtTime(0, audioCtx.currentTime);
+    compressor.knee.setValueAtTime(0, audioCtx.currentTime);
+    compressor.ratio.setValueAtTime(1, audioCtx.currentTime);
     compressor.attack.setValueAtTime(0, audioCtx.currentTime);
-    compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+    compressor.release.setValueAtTime(0, audioCtx.currentTime);
     analyser.smoothingTimeConstant = 0.6
     source.buffer=mybuffer;
 
