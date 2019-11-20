@@ -2,7 +2,7 @@
 <html>
     <head>
     <meta charset="utf-8">
-    <title>Web Audio API</title>
+    <title>Audio Mixer</title>
     <link rel="stylesheet" href="styleweb.css"/>
 
     </head>
@@ -10,21 +10,23 @@
       <div class="bg-image"></div>
       <div class="container">
             <p>In this website I made an audio mixer using Web Audio API for an academic project.</p>
-            <p><input type="button"  id="play"  value="Play/Pause">
+            <p font-size="small" id="wait">Wait to load the sound</p>
+            <p><input type="button"  id="play"  value="Play/Stop">
             <button id="compressor" active="true">Enable Compressor</button>
             <button id="bass" active="true">Enable Bass</button>
             <button id="treble" active="true">Enable Treble</button>
             </p>
 
 
-              <p  id="attr" style='display:none'  >
-              <input type="number" placeholder="threshold" id="threshold" required></input>
-              <input type="number" placeholder="knee" id="knee" required></input><br>
-              <input type="number" placeholder="ratio" id="ratio" required></input>
-              <input type="number" placeholder="attack" id="attack" step="0.1 "required></input>
-              <input type="number" placeholder="release" id="release" step="0.1" required></input><br><br>
-              <button id="startingCom">Start Compressor</button></p>
-
+              <form  id="attr" style='display:none' onsubmit="return false"  >
+                <input type="number" placeholder="threshold" id="threshold" min="-100" max="0" required message="hi"></input>
+                <input type="number" placeholder="knee" id="knee" min=0 max=40 required></input><br>
+                <input type="number" placeholder="ratio" id="ratio" min=1 max=20 required></input>
+                <input type="number" placeholder="attack" id="attack" step="0.01" min=0 max=1 required></input>
+                <input type="number" placeholder="release" id="release" step="0.01" min=0.00 max=1.00 required></input><br><br>
+                <button id="startingCom">Start Compressor</button>
+              </form>
+              <p id="alarmmsg"><p>
             <div class="slidercontainer">
                 <p><label for="volume">Volume</label></p>
                 <p id="volumedisplay"></p>
@@ -34,9 +36,6 @@
 
 
       </div>
-        <p id="demo">hello</p>
-
-
         <script type="text/javascript" src="audiomixer.js">
 
         </script>

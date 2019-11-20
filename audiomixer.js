@@ -4,7 +4,11 @@ const playButton=document.getElementById("play");
 const bassButton=document.getElementById("bass");
 const trebleButton=document.getElementById("treble");
 const startCompressor=document.getElementById("startingCom");
-
+var ratio;
+var knee;
+var attack;
+var threshold;
+var release;
 var canvasCt=document.getElementById("canvas1");
 var canvasCtx=canvasCt.getContext('2d');
 var attributes=document.getElementById("attr");
@@ -21,6 +25,7 @@ var compressor;
 var state="stopped"
 loadSound("https://dl.dropbox.com/s/roxjy4c2f7z5y6f/The%20Police%20-%20Roxanne%20%28Official%20Music%20Video%29.mp3?dl=0");
 source=playSound(mybuffer)
+
 
 analyser.fftSize=1024;
 var bufferLength = analyser.frequencyBinCount;
@@ -55,19 +60,32 @@ trebleButton.addEventListener('click',function(){
 },false);
 
 startCompressor.addEventListener('click',function(){
-  var ratio=document.getElementById("ratio").value;
-  var knee=document.getElementById("knee").value;
-  var attack=document.getElementById("attack").value;
-  var threshold=document.getElementById("threshold").value;
-  var release=document.getElementById("release").value;
+  ratio=document.getElementById("ratio").value;
+  knee=document.getElementById("knee").value;
+  attack=document.getElementById("attack").value;
+  threshold=document.getElementById("threshold").value;
+  release=document.getElementById("release").value;
+  var msg;
+  if(IsValid()){
     compressor.threshold.setValueAtTime(parseFloat(threshold), audioCtx.currentTime);
     compressor.knee.setValueAtTime(parseFloat(knee), audioCtx.currentTime);
     compressor.ratio.setValueAtTime(parseFloat(ratio), audioCtx.currentTime);
-    compressor.attack.setValueAtTime(parseFloat(attack), audioCtx.currentTime);
-    compressor.release.setValueAtTime(parseFloat(release), audioCtx.currentTime);
+    compressor.attack.setValueAtTime(attack, audioCtx.currentTime);
+    compressor.release.setValueAtTime(release, audioCtx.currentTime);
+    msg="Success activation"
+  }else{
+    msg="Error with Attributes!"
+  }
+  document.getElementById("alarmmsg").innerHTML = msg;
+
+  setTimeout(function(){
+      document.getElementById("alarmmsg").innerHTML = '';
+    }, 3000);
 },false);
 
-
+function IsValid(){
+  return threshold>=-100 && threshold<=0 && knee>=0 && knee<=40 && ratio>=1 && ratio<=20 && attack>=0 && attack<=1 && release >=0 && release <=1;
+}
 
 compressorButton.addEventListener('click',function(){
     if(compressorButton.getAttribute('active')==="true"){
@@ -95,36 +113,45 @@ playButton.addEventListener('click', function() {
     if(state==="stopped"){
         source=playSound(mybuffer);
         source.start();
-        document.getElementById("demo").innerHTML = "started";
         state="playing";
     }else{
         source.stop();
         state="stopped";
-        document.getElementById("demo").innerHTML = "paused";
     }
 },false);
 
 volumeButton.addEventListener('input',function(){
         gainNode.gain.value=this.value/100;
-        console.log(this.value/100)
         document.getElementById("volumedisplay").innerHTML = this.value;
 },false)
 
-
+function transferComplete(evt){
+  document.getElementById("wait").innerHTML="Loading Completed";
+  setTimeout(function(){
+      document.getElementById("wait").innerHTML = '';
+    }, 3000);
+}
 function loadSound(url){
     var req=new XMLHttpRequest();
+    req.addEventListener("load",transferComplete);
     req.open('GET',url,true);
     //req.setRequestHeader('Access-Control-Allow-Origin', '*');
+    var state=0
     req.responseType='arraybuffer';
     req.onload=function(){
         audioCtx.decodeAudioData(req.response,function(buffer){
             mybuffer=buffer;
-        },function(e){ console.log("Error with decoding audio data" + e.err); });
+
+        },function(e){ console.log("Error with decoding audio data" + e.err);state=1;});
     }
+
     req.send();
+
+
 }
 
 function playSound(buffer){
+
     analyser=audioCtx.createAnalyser();
     compressor= audioCtx.createDynamicsCompressor();
     bass=audioCtx.createBiquadFilter();
@@ -132,12 +159,6 @@ function playSound(buffer){
     gainNode=audioCtx.createGain();
     gainNode.gain.value=0.5;
     source=audioCtx.createBufferSource();
-
-    compressor.threshold.setValueAtTime(0, audioCtx.currentTime);
-    compressor.knee.setValueAtTime(0, audioCtx.currentTime);
-    compressor.ratio.setValueAtTime(1, audioCtx.currentTime);
-    compressor.attack.setValueAtTime(0, audioCtx.currentTime);
-    compressor.release.setValueAtTime(0, audioCtx.currentTime);
     analyser.smoothingTimeConstant = 0.6
     source.buffer=mybuffer;
 
@@ -185,30 +206,3 @@ function playSound(buffer){
         canvasCtx.lineTo(WIDTH, HEIGHT/2);
         canvasCtx.stroke();
     };
-
-
-
-
-//set up the different audio nodes we will use for the app
-/*
-var analyser = audioCtx.createAnalyser();
-var distortion = audioCtx.createWaveShaper();
-
-var biquadFilter = audioCtx.createBiquadFilter();
-var convolver = audioCtx.createConvolver();
-
-// connect the nodes together
-
-source = audioCtx.createMediaStreamSource(stream);
-source.connect(analyser);
-analyser.connect(distortion);
-distortion.connect(biquadFilter);
-biquadFilter.connect(convolver);
-convolver.connect(gainNode);
-
-
-// Manipulate the Biquad filter
-
-biquadFilter.type = "lowshelf";
-biquadFilter.frequency.setValueAtTime(1000, audioCtx.currentTime);
-biquadFilter.gain.setValueAtTime(25, audioCtx.currentTime);*/
