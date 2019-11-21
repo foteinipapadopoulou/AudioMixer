@@ -3,6 +3,7 @@ const volumeButton=document.getElementById("volume");
 const playButton=document.getElementById("play");
 const bassButton=document.getElementById("bass");
 const trebleButton=document.getElementById("treble");
+const middleButton=document.getElementById("middle");
 const startCompressor=document.getElementById("startingCom");
 var ratio;
 var knee;
@@ -20,6 +21,7 @@ var source=null;
 var analyser=null;
 var bass;
 var treble;
+var middle;
 var gainNode;
 var compressor;
 var state="stopped"
@@ -34,10 +36,24 @@ var HEIGHT=100;
 var dataArray = new Uint8Array(bufferLength);
 canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 draw();
-
+middleButton.addEventListener('click',function(){
+  if(middleButton.getAttribute('active')==="true"){
+    bass.connect(middle);
+    middle.connect(treble);
+    middleButton.innerHTML='Disable Middle';
+    middleButton.setAttribute('active',"false");
+  }else{
+    middle.disconnect(treble);
+    bass.disconnect(middle);
+    bass.connect(treble);
+    middleButton.innerHTML='Enable Middle';
+    middleButton.setAttribute('active',"true");
+  }
+},false);
 bassButton.addEventListener('click',function(){
   if(bassButton.getAttribute('active')==="true"){
     bass.gain.setValueAtTime(20,audioCtx.currentTime);
+    console.log(bass.gain.value)
     bassButton.innerHTML='Disable Bass';
     bassButton.setAttribute('active',"false");
   }else{
@@ -156,21 +172,24 @@ function playSound(buffer){
     compressor= audioCtx.createDynamicsCompressor();
     bass=audioCtx.createBiquadFilter();
     treble=audioCtx.createBiquadFilter();
+    middle=audioCtx.createBiquadFilter();
     gainNode=audioCtx.createGain();
     gainNode.gain.value=0.5;
     source=audioCtx.createBufferSource();
     analyser.smoothingTimeConstant = 0.6
     source.buffer=mybuffer;
-
-    source.connect(analyser);
-    analyser.connect(bass);
+    source.connect(bass);
+    //analyser.connect(bass);
     bass.connect(treble);
-    treble.connect(gainNode);
+    treble.connect(analyser);
+    analyser.connect(gainNode);
     gainNode.connect(audioCtx.destination);
+
     // Manipulate the Biquad filter
     bass.type="lowshelf";
     bass.frequency.setValueAtTime(400,audioCtx.currentTime);
     bass.gain.setValueAtTime(0,audioCtx.currentTime);
+    middle.frequency.setValueAtTime(1000,audioCtx.currentTime);
     treble.type = "highshelf";
     treble.frequency.setValueAtTime(2000, audioCtx.currentTime);
     treble.gain.setValueAtTime(0, audioCtx.currentTime);
