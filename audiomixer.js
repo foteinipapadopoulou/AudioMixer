@@ -1,34 +1,33 @@
 
+//Getting Buttons ID from html file
 const volumeButton=document.getElementById("volume");
 const playButton=document.getElementById("play");
 const bassButton=document.getElementById("bass");
 const trebleButton=document.getElementById("treble");
 const middleButton=document.getElementById("middle");
 const startCompressor=document.getElementById("startingCom");
-var ratio;
-var knee;
-var attack;
-var threshold;
-var release;
-var canvasCt=document.getElementById("canvas1");
+const canvasCt=document.getElementById("canvas1");
 var canvasCtx=canvasCt.getContext('2d');
-var attributes=document.getElementById("attr");
+const attributes=document.getElementById("attr");
 const compressorButton=document.getElementById("compressor");
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContext();
+
+var ratio,knee,attack, threshold,release;
 var mybuffer=null;
 var source=null;
 var analyser=null;
-var bass;
-var treble;
-var middle;
-var gainNode;
-var compressor;
+var bass,treble,middle, gainNode, compressor;
+
+
+//Initializing Audio Context
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+
 var state="stopped"
+//Loading Sound
 loadSound("https://dl.dropbox.com/s/roxjy4c2f7z5y6f/The%20Police%20-%20Roxanne%20%28Official%20Music%20Video%29.mp3?dl=0");
 source=playSound(mybuffer)
 
-
+//Initializing canvasContext  and array's properties
 analyser.fftSize=1024;
 var bufferLength = analyser.frequencyBinCount;
 var WIDTH=500;
@@ -36,6 +35,8 @@ var HEIGHT=100;
 var dataArray = new Uint8Array(bufferLength);
 canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 draw();
+
+// Middle Button
 middleButton.addEventListener('click',function(){
   if(middleButton.getAttribute('active')==="true"){
     bass.connect(middle);
@@ -50,6 +51,8 @@ middleButton.addEventListener('click',function(){
     middleButton.setAttribute('active',"true");
   }
 },false);
+
+//Bass Button
 bassButton.addEventListener('click',function(){
   if(bassButton.getAttribute('active')==="true"){
     bass.gain.setValueAtTime(20,audioCtx.currentTime);
@@ -63,6 +66,7 @@ bassButton.addEventListener('click',function(){
   }
 },false);
 
+//Treble Button
 trebleButton.addEventListener('click',function(){
   if(trebleButton.getAttribute('active')==="true"){
     treble.gain.setValueAtTime(25,audioCtx.currentTime);
@@ -75,6 +79,8 @@ trebleButton.addEventListener('click',function(){
   }
 },false);
 
+
+//Dynamic Compressor Button
 startCompressor.addEventListener('click',function(){
   ratio=document.getElementById("ratio").value;
   knee=document.getElementById("knee").value;
@@ -82,6 +88,7 @@ startCompressor.addEventListener('click',function(){
   threshold=document.getElementById("threshold").value;
   release=document.getElementById("release").value;
   var msg;
+  
   if(IsValid()){
     compressor.threshold.setValueAtTime(parseFloat(threshold), audioCtx.currentTime);
     compressor.knee.setValueAtTime(parseFloat(knee), audioCtx.currentTime);
@@ -92,17 +99,22 @@ startCompressor.addEventListener('click',function(){
   }else{
     msg="Error with Attributes!"
   }
+  //Display message for Success or Fail of starting the compressor
   document.getElementById("alarmmsg").innerHTML = msg;
 
   setTimeout(function(){
       document.getElementById("alarmmsg").innerHTML = '';
     }, 3000);
+	
+	
 },false);
 
+//Check restrictions of properties
 function IsValid(){
   return threshold>=-100 && threshold<=0 && knee>=0 && knee<=40 && ratio>=1 && ratio<=20 && attack>=0 && attack<=1 && release >=0 && release <=1;
 }
 
+//Starting DynamicCompressor Button
 compressorButton.addEventListener('click',function(){
     if(compressorButton.getAttribute('active')==="true"){
       gainNode.disconnect(audioCtx.destination);
@@ -121,7 +133,7 @@ compressorButton.addEventListener('click',function(){
     }
 },false);
 
-
+//Play/Stop Button
 playButton.addEventListener('click', function() {
   if (audioCtx.state === 'suspended') {
        audioCtx.resume();
@@ -136,22 +148,24 @@ playButton.addEventListener('click', function() {
     }
 },false);
 
+//Volume bar
 volumeButton.addEventListener('input',function(){
         gainNode.gain.value=this.value/100;
         document.getElementById("volumedisplay").innerHTML = this.value;
 },false)
 
+//Display if Loading is completed 
 function transferComplete(evt){
   document.getElementById("wait").innerHTML="Loading Completed";
   setTimeout(function(){
       document.getElementById("wait").innerHTML = '';
     }, 3000);
 }
+
 function loadSound(url){
     var req=new XMLHttpRequest();
     req.addEventListener("load",transferComplete);
     req.open('GET',url,true);
-    //req.setRequestHeader('Access-Control-Allow-Origin', '*');
     var state=0
     req.responseType='arraybuffer';
     req.onload=function(){
@@ -166,6 +180,7 @@ function loadSound(url){
 
 }
 
+//Connect all nodes to destination and initializing filters
 function playSound(buffer){
 
     analyser=audioCtx.createAnalyser();
@@ -198,6 +213,7 @@ function playSound(buffer){
     return source;
 }
 
+//Drawing Oscilloscope
     function draw(){
         var drawVisual = requestAnimationFrame(draw);
         analyser.getByteTimeDomainData(dataArray);
